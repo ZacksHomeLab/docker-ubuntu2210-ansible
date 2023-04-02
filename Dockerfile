@@ -8,6 +8,7 @@ ENV pip_packages "ansible"
 # Install dependencies.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+	   nano \
        apt-utils \
        build-essential \
        locales \
@@ -32,7 +33,28 @@ RUN locale-gen en_US.UTF-8
 # Install Ansible via Pip.
 RUN pip3 install $pip_packages
 
-COPY initctl_faker .
+RUN echo "#!/bin/bash\n" \
+		"ALIAS_CMD=\"\$(echo \"\"\$0\"\" | sed -e 's?/sbin/??')\"\n" \
+		"case \"\$ALIAS_CMD\" in\n" \
+		"  start|stop|restart|reload|status)\n" \
+		"    exec service \$1 \$ALIAS_CMD\n" \
+		"    ;;\n" \
+		"esac\n" \
+		"case \"\$1\" in\n" \
+		"  list )\n" \
+		"    exec service --status-all\n" \
+		"    ;;\n" \
+		"  reload-configuration )\n" \
+		"    exec service \$2 restart\n" \
+		"    ;;\n" \
+		"  start|stop|restart|reload|status)\n" \
+		"    exec service \$2 \$1\n" \
+		"    ;;\n" \
+		"  \?)\n" \
+		"    exit 0\n" \
+		"    ;;\n" \
+		"esac\n" > initctl_faker
+
 RUN chmod +x initctl_faker && rm -fr /sbin/initctl && ln -s /initctl_faker /sbin/initctl
 
 # Install Ansible inventory file.
