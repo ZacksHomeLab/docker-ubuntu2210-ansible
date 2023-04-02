@@ -20,7 +20,7 @@ docker run --detach --privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:rw --cgr
 ```
 
 # How-To Run the Image in Molecule
-* Here's an example of a `moleculy.yml` file to test the image with your ansible playbooks/roles:
+* Here's an example of a `molecule.yml` file to test the image with your ansible playbooks/roles:
 ```
 ---
 dependency:
