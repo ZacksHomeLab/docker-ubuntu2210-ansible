@@ -16,7 +16,7 @@ docker build -t docker-ubuntu2210-ansible:latest .
 # How-To Run the Image
 * Once the image has been built, create a container by running the following command:
 ```
-docker run --detach --privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host docker-ubuntu2210-ansible:latest
+docker run --detach --privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro --cgroupns=host docker-ubuntu2210-ansible:latest
 ```
 
 # How-To Run the Image in Molecule
@@ -38,6 +38,9 @@ driver:
 platforms:
   - name: instance-1-ubuntu2210
     image: docker-ubuntu2210-ansible:latest
+    command: ${MOLECULE_DOCKER_COMMAND:-"/usr/sbin/init"}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
     pre_build_image: true
 provisioner:
